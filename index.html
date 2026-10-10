@@ -48,8 +48,13 @@
     position:absolute;bottom:-140px;
     animation:rise linear infinite;
     pointer-events:auto;cursor:pointer;
+    touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+    padding:18px; /* bigger tap target for fingers */
+    margin:-18px;
   }
   .balloon:active .body{filter:brightness(1.2);}
+  .balloon.tapped .body{animation:pulse .25s ease;}
+  @keyframes pulse{50%{transform:scale(1.25);}}
 
   /* ---------- BALLOON SHATTER FRAGMENTS ---------- */
   .frag{
@@ -205,9 +210,21 @@
   @keyframes fade{from{opacity:1}to{opacity:0}}
 
   @media (max-width:560px){
-    .card{width:74px;padding:14px 4px;}
-    .num{font-size:1.6rem;}
-    .cake{transform:scale(.85);}
+    .card{width:70px;padding:12px 4px;}
+    .num{font-size:1.5rem;}
+    .cake{transform:scale(.8);}
+    .cake-timer{font-size:.8rem;padding:3px 8px;}
+    .cake-scene{margin-top:-8px;gap:0;}
+    body{gap:16px;padding:24px 10px;}
+    .balloon .body{width:52px;height:64px;}
+    .balloon .body .tag{font-size:16px;}
+    .frag{width:16px;height:20px;} /* bigger, easier-to-see chunks on small screens */
+  }
+  @media (max-width:380px){
+    .timer{gap:8px;}
+    .card{width:62px;}
+    .num{font-size:1.3rem;}
+    .cake{transform:scale(.7);}
   }
 </style>
 </head>
@@ -268,7 +285,8 @@ const REDIRECT_DELAY_SECONDS = 10;
 /* ============ BALLOONS ============ */
 const balloonColors = ["#ff6fae","#ffd76e","#6ee7ff","#a86cff","#7bf1a8","#ff9b6a"];
 const balloonsWrap = document.getElementById("balloons");
-for (let i = 0; i < 14; i++){
+const BALLOON_COUNT = window.innerWidth < 560 ? 9 : 14; // fewer, bigger balloons on phones
+for (let i = 0; i < BALLOON_COUNT; i++){
   const b = document.createElement("div");
   b.className = "balloon";
   const color = balloonColors[i % balloonColors.length];
@@ -282,10 +300,21 @@ for (let i = 0; i < 14; i++){
   b.innerHTML = `<div class="body" style="background:${color};border-top-color:${color}"><div class="tag">PS</div><div class="string"></div></div>`;
   b.querySelector(".body").style.borderTopColor = color;
   b.querySelector(".body").style.background = color;
-  b.addEventListener("click", (e) => {
+  /* Mobile-friendly tap: touchstart fires instantly (no 300ms delay),
+     click covers mouse/desktop. Guard prevents double-fire on devices sending both. */
+  let lastTap = 0;
+  const onTap = (e) => {
     e.stopPropagation();
-    breakBalloon(b, e.clientX, e.clientY);
-  });
+    if (e.cancelable) e.preventDefault();
+    const now = Date.now();
+    if (now - lastTap < 600) return; // ignore the synthetic click after touch
+    lastTap = now;
+    const t = e.touches ? e.touches[0] : e;
+    b.classList.remove("tapped"); void b.offsetWidth; b.classList.add("tapped");
+    breakBalloon(b, t.clientX, t.clientY);
+  };
+  b.addEventListener("touchstart", onTap, {passive:false});
+  b.addEventListener("click", onTap);
   balloonsWrap.appendChild(b);
 }
 
