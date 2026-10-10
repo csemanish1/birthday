@@ -3,108 +3,226 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Countdown → Oct 12, 2026 12:00 AM</title>
+<title>🎂 Birthday Countdown → Oct 12, 2026 12:00 AM</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg1:#0f0c29; --bg2:#302b63; --bg3:#24243e;
-    --accent:#7c5cff; --accent2:#00e5ff; --gold:#f6c667;
-    --card:rgba(255,255,255,.06); --stroke:rgba(255,255,255,.14);
+    --bg1:#2d1b4e; --bg2:#4a2c6e; --bg3:#1a1230;
+    --pink:#ff6fae; --purple:#a86cff; --gold:#ffd76e;
+    --cyan:#6ee7ff; --card:rgba(255,255,255,.08); --stroke:rgba(255,255,255,.16);
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   body{
-    font-family:'Poppins',sans-serif;color:#eef;
+    font-family:'Poppins',sans-serif;color:#fff4fb;
     min-height:100vh;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;gap:26px;
+    align-items:center;justify-content:center;gap:24px;
     background:linear-gradient(160deg,var(--bg1),var(--bg2) 50%,var(--bg3));
-    overflow-x:hidden;padding:40px 16px;
+    overflow-x:hidden;padding:40px 16px;position:relative;
+  }
+  /* confetti dotted background layer */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
+    background-image:
+      radial-gradient(circle 4px at 8% 20%, var(--pink) 98%, transparent),
+      radial-gradient(circle 3px at 22% 65%, var(--gold) 98%, transparent),
+      radial-gradient(circle 5px at 35% 15%, var(--cyan) 98%, transparent),
+      radial-gradient(circle 3px at 55% 80%, var(--pink) 98%, transparent),
+      radial-gradient(circle 4px at 70% 25%, var(--gold) 98%, transparent),
+      radial-gradient(circle 3px at 85% 60%, var(--cyan) 98%, transparent),
+      radial-gradient(circle 4px at 93% 15%, var(--pink) 98%, transparent),
+      radial-gradient(circle 3px at 15% 90%, var(--cyan) 98%, transparent),
+      radial-gradient(circle 4px at 60% 8%, var(--gold) 98%, transparent),
+      radial-gradient(circle 3px at 45% 45%, rgba(255,255,255,.6) 98%, transparent);
   }
   h1{
-    font-size:clamp(1.3rem,3.5vw,2rem);font-weight:600;text-align:center;
-    background:linear-gradient(90deg,var(--accent2),var(--accent),var(--gold));
+    font-size:clamp(1.4rem,3.8vw,2.2rem);font-weight:700;text-align:center;z-index:2;
+    background:linear-gradient(90deg,var(--pink),var(--gold),var(--cyan));
     -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 14px rgba(255,111,174,.45));
   }
-  .sub{opacity:.65;font-weight:300;font-size:.95rem;text-align:center;}
+  .sub{opacity:.7;font-weight:300;font-size:.95rem;text-align:center;z-index:2;}
+
+  /* ---------- BALLOONS ---------- */
+  .balloons{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:1;}
+  .balloon{
+    position:absolute;bottom:-140px;
+    animation:rise linear infinite;
+  }
+  .balloon .body{
+    width:56px;height:70px;border-radius:50% 50% 50% 50% / 55% 55% 45% 45%;
+    box-shadow:inset -8px -10px 0 rgba(0,0,0,.14), inset 6px 8px 0 rgba(255,255,255,.25);
+    animation:sway 2.6s ease-in-out infinite alternate;position:relative;
+  }
+  .balloon .body::after{ /* knot */
+    content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);
+    border-left:6px solid transparent;border-right:6px solid transparent;
+    border-top:9px solid inherit;
+    border-top-color:inherit;background:inherit;filter:brightness(.85);
+  }
+  .balloon .string{
+    width:2px;height:70px;margin:6px auto 0;border-radius:2px;
+    background:linear-gradient(rgba(255,255,255,.7),rgba(255,255,255,0));
+  }
+  @keyframes rise{
+    0%{transform:translateY(0) rotate(-3deg);opacity:0;}
+    8%{opacity:.95;}
+    100%{transform:translateY(-115vh) rotate(3deg);opacity:.9;}
+  }
+  @keyframes sway{from{transform:translateX(-6px) rotate(-4deg);}to{transform:translateX(6px) rotate(4deg);}}
 
   /* ---------- TIMER CARDS ---------- */
-  .timer{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;}
+  .timer{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;z-index:2;}
   .card{
-    width:120px;padding:22px 8px;border-radius:20px;text-align:center;
+    width:118px;padding:20px 8px;border-radius:20px;text-align:center;
     background:var(--card);border:1px solid var(--stroke);
     backdrop-filter:blur(10px);
-    box-shadow:0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+    box-shadow:0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.1);
     transition:transform .3s;
   }
   .card:hover{transform:translateY(-6px);}
   .num{
-    font-family:'Orbitron',monospace;font-size:2.4rem;font-weight:700;
-    background:linear-gradient(180deg,#fff,#b9a7ff);
+    font-family:'Orbitron',monospace;font-size:2.3rem;font-weight:700;
+    background:linear-gradient(180deg,#fff,#ffc6e5);
     -webkit-background-clip:text;background-clip:text;color:transparent;
     display:block;line-height:1.1;
   }
-  .lbl{font-size:.68rem;letter-spacing:3px;text-transform:uppercase;opacity:.55;margin-top:6px;}
+  .lbl{font-size:.68rem;letter-spacing:3px;text-transform:uppercase;opacity:.6;margin-top:6px;}
   .num.tick{animation:tick .5s ease;}
   @keyframes tick{
     0%{transform:scale(1)}
-    35%{transform:scale(1.18);text-shadow:0 0 18px rgba(124,92,255,.8)}
+    35%{transform:scale(1.18);text-shadow:0 0 18px rgba(255,111,174,.9)}
     100%{transform:scale(1)}
   }
 
+  /* ---------- CAKE ---------- */
+  .cake-scene{display:flex;flex-direction:column;align-items:center;gap:4px;z-index:2;margin-top:4px;}
+  .cake-top-digits{
+    font-family:'Orbitron',monospace;font-size:clamp(1.5rem,4.5vw,2.4rem);font-weight:700;
+    color:var(--gold);text-shadow:0 0 12px rgba(255,215,110,.8),0 2px 0 rgba(0,0,0,.3);
+    margin-bottom:2px;letter-spacing:2px;
+  }
+  .cake-top-digits small{font-size:.45em;opacity:.85;letter-spacing:1px;}
+  .cake{position:relative;width:230px;height:190px;filter:drop-shadow(0 18px 30px rgba(0,0,0,.45));}
+  /* candles */
+  .candles{position:absolute;top:0;left:0;right:0;display:flex;justify-content:center;gap:16px;}
+  .candle{width:9px;height:34px;border-radius:4px;position:relative;animation:flicker-stick 1s ease-in-out infinite alternate;}
+  .candle:nth-child(1){background:linear-gradient(#fff,#ffd3ec);animation-delay:.2s;}
+  .candle:nth-child(2){background:linear-gradient(#fff,#ffe9a8);animation-delay:.5s;}
+  .candle:nth-child(3){background:linear-gradient(#fff,#c9f3ff);animation-delay:.1s;}
+  .candle:nth-child(4){background:linear-gradient(#fff,#ffd3ec);animation-delay:.7s;}
+  .candle:nth-child(5){background:linear-gradient(#fff,#ffe9a8);animation-delay:.35s;}
+  .flame{
+    position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+    width:13px;height:18px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+    background:radial-gradient(circle at 50% 70%,#fff7c2 10%,#ffb52e 55%,#ff5d2e 90%);
+    box-shadow:0 0 14px 4px rgba(255,160,40,.65);
+    animation:flicker .28s ease-in-out infinite alternate;transform-origin:bottom center;
+  }
+  @keyframes flicker{
+    from{transform:translateX(-50%) scale(1) rotate(-2deg);}
+    to{transform:translateX(-50%) scale(1.15,.92) rotate(3deg);}
+  }
+  @keyframes flicker-stick{from{transform:rotate(-1.5deg);}to{transform:rotate(1.5deg);}}
+  /* layers */
+  .layer{position:absolute;left:50%;transform:translateX(-50%);}
+  .layer.top{top:36px;width:150px;height:52px;border-radius:16px 16px 10px 10px;background:linear-gradient(#ff8fbf,#e7549b);}
+  .layer.mid{top:88px;width:190px;height:50px;border-radius:14px;background:linear-gradient(#c98bff,#8e5cf0);}
+  .layer.bot{top:138px;width:230px;height:50px;border-radius:12px;background:linear-gradient(#ffd76e,#f0a93a);}
+  /* frosting drips */
+  .drip{position:absolute;top:-2px;left:0;right:0;height:16px;
+    -webkit-mask:radial-gradient(circle 8px at 12px 2px,transparent 7px,#000 8px) 0 0/24px 100%;
+    mask:radial-gradient(circle 8px at 12px 2px,transparent 7px,#000 8px) 0 0/24px 100%;
+  }
+  .layer.top .drip{background:#fff0f7;}
+  .layer.mid .drip{background:#f3e7ff;}
+  .layer.bot .drip{background:#fff4d9;}
+  /* plate */
+  .plate{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);
+    width:260px;height:20px;border-radius:50%;background:rgba(255,255,255,.28);}
+  /* cake timer chip inside bottom layer */
+  .cake-timer{
+    position:absolute;top:150px;left:50%;transform:translateX(-50%);
+    background:rgba(60,30,10,.55);border:1px solid rgba(255,255,255,.35);
+    border-radius:10px;padding:4px 12px;
+    font-family:'Orbitron',monospace;font-size:.95rem;color:#fff;
+    text-shadow:0 0 8px rgba(255,215,110,.9);letter-spacing:1px;white-space:nowrap;
+  }
+  .cake-timer b{color:var(--gold);font-weight:700;}
+
   /* ---------- PROGRESS ---------- */
-  .progress-wrap{width:min(620px,90vw);}
+  .progress-wrap{width:min(620px,90vw);z-index:2;}
   .progress{
-    height:10px;border-radius:99px;background:rgba(255,255,255,.08);
+    height:10px;border-radius:99px;background:rgba(255,255,255,.1);
     overflow:hidden;border:1px solid var(--stroke);
   }
   .bar{
     height:100%;width:0%;border-radius:99px;
-    background:linear-gradient(90deg,var(--accent2),var(--accent),var(--gold));
+    background:linear-gradient(90deg,var(--pink),var(--purple),var(--gold));
     transition:width 1s linear;
   }
-  .progress-meta{display:flex;justify-content:space-between;font-size:.78rem;opacity:.6;margin-top:8px;}
+  .progress-meta{display:flex;justify-content:space-between;font-size:.78rem;opacity:.65;margin-top:8px;}
 
   /* ---------- CONTROLS ---------- */
-  .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;z-index:2;}
   button{
     font-family:'Poppins';font-size:.85rem;padding:10px 20px;border-radius:99px;
-    border:1px solid var(--stroke);cursor:pointer;color:#eef;
+    border:1px solid var(--stroke);cursor:pointer;color:#fff4fb;
     background:var(--card);backdrop-filter:blur(8px);
     transition:transform .2s, background .2s, box-shadow .2s;
   }
-  button:hover{transform:scale(1.06);background:rgba(255,255,255,.12);box-shadow:0 6px 20px rgba(124,92,255,.35);}
-  button.primary{background:linear-gradient(145deg,var(--accent),#5a3ee0);border-color:transparent;}
+  button:hover{transform:scale(1.06);background:rgba(255,255,255,.14);box-shadow:0 6px 20px rgba(255,111,174,.4);}
+  button.primary{background:linear-gradient(145deg,var(--pink),#c94f92);border-color:transparent;}
   button.warn{border-color:rgba(255,110,150,.5);}
 
-  .status{font-size:.85rem;opacity:.75;min-height:1.2em;}
-  .done{
-    color:var(--gold);font-weight:600;animation:glow 1s ease-in-out infinite alternate;
-  }
-  @keyframes glow{from{text-shadow:0 0 6px rgba(246,198,103,.3)}to{text-shadow:0 0 22px rgba(246,198,103,.9)}}
+  .status{font-size:.85rem;opacity:.8;min-height:1.2em;z-index:2;}
+  .done{color:var(--gold);font-weight:600;animation:glow 1s ease-in-out infinite alternate;}
+  @keyframes glow{from{text-shadow:0 0 6px rgba(255,215,110,.3)}to{text-shadow:0 0 22px rgba(255,215,110,.9)}}
 
-  /* zero-state flash */
   body.done-flash::after{
-    content:"";position:fixed;inset:0;pointer-events:none;
-    background:radial-gradient(circle at 50% 40%,rgba(246,198,103,.25),transparent 60%);
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:5;
+    background:radial-gradient(circle at 50% 40%,rgba(255,215,110,.3),transparent 60%);
     animation:fade 1.4s ease forwards;
   }
   @keyframes fade{from{opacity:1}to{opacity:0}}
 
   @media (max-width:560px){
-    .card{width:78px;padding:16px 4px;}
-    .num{font-size:1.7rem;}
+    .card{width:74px;padding:14px 4px;}
+    .num{font-size:1.6rem;}
+    .cake{transform:scale(.85);}
   }
 </style>
 </head>
 <body>
 
-<h1>⏳ Tick-tock! 🕒 Counting down</h1>
-<p class="sub">The birthday countdown is officially on fire 🔥🎉</p>
+<div class="balloons" id="balloons" aria-hidden="true"></div>
+
+<h1>🎂 Tick-tock! It's almost Birthday Time! 🎉</h1>
+<p class="sub">The birthday countdown is officially on fire 🔥🎈</p>
 
 <div class="timer" id="timer">
   <div class="card"><span class="num" id="days">--</span><span class="lbl">Days</span></div>
   <div class="card"><span class="num" id="hours">--</span><span class="lbl">Hours</span></div>
   <div class="card"><span class="num" id="minutes">--</span><span class="lbl">Minutes</span></div>
   <div class="card"><span class="num" id="seconds">--</span><span class="lbl">Seconds</span></div>
+</div>
+
+<!-- ---------- BIRTHDAY CAKE WITH TIMER ---------- -->
+<div class="cake-scene">
+  <div class="cake-top-digits" id="cake-digits">--<small>D</small> --<small>H</small> --<small>M</small> --<small>S</small></div>
+  <div class="cake">
+    <div class="candles">
+      <div class="candle"><div class="flame"></div></div>
+      <div class="candle"><div class="flame"></div></div>
+      <div class="candle"><div class="flame"></div></div>
+      <div class="candle"><div class="flame"></div></div>
+      <div class="candle"><div class="flame"></div></div>
+    </div>
+    <div class="layer top"><div class="drip"></div></div>
+    <div class="layer mid"><div class="drip"></div></div>
+    <div class="layer bot"><div class="drip"></div></div>
+    <div class="plate"></div>
+    <div class="cake-timer" id="cake-timer">🎂 <b>--:--:--:--</b></div>
+  </div>
 </div>
 
 <div class="progress-wrap">
@@ -124,7 +242,26 @@
 /* ============ CONFIG ============ */
 const TARGET_DATE = new Date(2026, 9, 12, 0, 0, 0); // 12 Oct 2026, 12:00 AM local
 let REDIRECT_URL = "#"; // ← change this to your URL
-const REDIRECT_DELAY_SECONDS = 10; // countdown shown after timer ends, then redirect
+const REDIRECT_DELAY_SECONDS = 10;
+
+/* ============ BALLOONS ============ */
+const balloonColors = ["#ff6fae","#ffd76e","#6ee7ff","#a86cff","#7bf1a8","#ff9b6a"];
+const balloonsWrap = document.getElementById("balloons");
+for (let i = 0; i < 14; i++){
+  const b = document.createElement("div");
+  b.className = "balloon";
+  const color = balloonColors[i % balloonColors.length];
+  const scale = 0.6 + Math.random() * 0.9;
+  const dur = 9 + Math.random() * 10;
+  b.style.left = (Math.random() * 96) + "vw";
+  b.style.animationDuration = dur + "s";
+  b.style.animationDelay = (-Math.random() * dur) + "s";
+  b.style.transform = `scale(${scale})`;
+  b.innerHTML = `<div class="body" style="background:${color};border-top-color:${color}"><div class="string"></div></div>`;
+  b.querySelector(".body").style.borderTopColor = color;
+  b.querySelector(".body").style.background = color;
+  balloonsWrap.appendChild(b);
+}
 
 /* ============ STATE ============ */
 const STORAGE_KEY = "cd-start-oct12-2026";
@@ -139,6 +276,7 @@ const els = {
   minutes: document.getElementById("minutes"), seconds: document.getElementById("seconds"),
   bar: document.getElementById("bar"), pct: document.getElementById("pct"),
   status: document.getElementById("status"), started: document.getElementById("started-label"),
+  cakeDigits: document.getElementById("cake-digits"), cakeTimer: document.getElementById("cake-timer"),
   body: document.body,
 };
 const lastVals = {};
@@ -157,10 +295,7 @@ function updateCountdown(){
   if (finished) return;
   let remaining = paused ? pausedRemaining : TARGET_DATE - Date.now();
 
-  if (remaining <= 0){
-    finish();
-    return;
-  }
+  if (remaining <= 0){ finish(); return; }
 
   const d = Math.floor(remaining / 864e5);
   const h = Math.floor(remaining / 36e5) % 24;
@@ -171,6 +306,11 @@ function updateCountdown(){
   setNum("hours", pad(h));
   setNum("minutes", pad(m));
   setNum("seconds", pad(s));
+
+  // cake readouts
+  els.cakeDigits.innerHTML =
+    `${pad(d)}<small>D</small> ${pad(h)}<small>H</small> ${pad(m)}<small>M</small> ${pad(s)}<small>S</small>`;
+  els.cakeTimer.innerHTML = `🎂 <b>${pad(d)}:${pad(h)}:${pad(m)}:${pad(s)}</b>`;
 
   const elapsed = paused ? (Date.now() - remaining - startAt) : (Date.now() - startAt);
   const pct = Math.min(100, Math.max(0, (elapsed / totalSpan) * 100));
@@ -183,6 +323,8 @@ function finish(){
   finished = true;
   clearInterval(intervalId);
   ["days","hours","minutes","seconds"].forEach(k => { els[k].textContent = "00"; });
+  els.cakeDigits.innerHTML = `00<small>D</small> 00<small>H</small> 00<small>M</small> 00<small>S</small>`;
+  els.cakeTimer.innerHTML = `🎂 <b>00:00:00:00</b>`;
   els.bar.style.width = "100%";
   els.pct.textContent = "100%";
   els.body.classList.add("done-flash");
@@ -199,7 +341,6 @@ function finish(){
     }
   }, 1000);
 
-  // Allow the user to cancel the auto-redirect
   const cancelBtn = document.createElement("button");
   cancelBtn.className = "warn";
   cancelBtn.textContent = "✖ Cancel redirect";
@@ -221,7 +362,7 @@ document.getElementById("pause-btn").addEventListener("click", function(){
     this.textContent = "▶ Resume";
     els.status.textContent = "Paused ⏸";
   } else {
-    startAt = Date.now() - (totalSpan - pausedRemaining); // keep progress bar consistent
+    startAt = Date.now() - (totalSpan - pausedRemaining);
     localStorage.setItem(STORAGE_KEY, startAt);
     paused = false;
     this.textContent = "⏸ Pause";
