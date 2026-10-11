@@ -27,7 +27,9 @@
             position: absolute;
             bottom: -220px;
             z-index: 12;
-            pointer-events: none;
+            pointer-events: auto;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
             animation: heartFloatUp 14s linear forwards;
             filter: drop-shadow(0 10px 15px rgba(236, 72, 153, 0.35));
         }
@@ -114,6 +116,45 @@
             width: 2px;
             height: 55px;
             background: linear-gradient(to bottom, rgba(236,72,153,0.6), rgba(236,72,153,0));
+        }
+
+        /* ============ CLASSIC PARTY BALLOONS (lots, from page load) ============ */
+        .balloon {
+            position: absolute;
+            bottom: -170px;
+            border-radius: 50% 50% 50% 50% / 42% 42% 58% 58%;
+            animation: balloonFloatUp var(--b-dur, 13s) linear forwards;
+            animation-delay: var(--b-delay, 0s);
+            opacity: 0;
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.15), 0 10px 15px rgba(0,0,0,0.05);
+            z-index: 5;
+            pointer-events: auto;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Pop-in-place squash just before breaking */
+        .balloon.popping { animation-play-state: paused; transition: transform 0.1s ease; transform: scale(1.25, 0.7); }
+        .balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 16px;
+            background-color: rgba(0,0,0,0.2);
+        }
+        @keyframes balloonFloatUp {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0.92;
+            }
+            30% { transform: translateY(-36vh) translateX(22px) rotate(5deg); }
+            60% { transform: translateY(-72vh) translateX(-20px) rotate(-5deg); }
+            100% {
+                transform: translateY(-125vh) translateX(14px) rotate(3deg);
+                opacity: 0;
+            }
         }
 
         /* Candle flame flicker */
@@ -207,6 +248,14 @@
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
         }
+        /* On mobile, shrink floating balloons (incl. the "PS" heart) so the
+           screen doesn't get crowded — zoom works with the animations */
+        @media (max-width: 640px) {
+            .balloon,
+            .heart-balloon {
+                zoom: 0.6;
+            }
+        }
         /* On mobile keep the whole line on one row by shrinking the type */
         @media (max-width: 640px) {
             #hero-title {
@@ -227,10 +276,11 @@
             opacity: 0;
             transform: scale(0) rotate(-8deg);
             filter: blur(6px) saturate(0);
+            /* Slow ease-out: image grows gently from 0% to 100% */
             transition:
-                opacity 0.9s cubic-bezier(0.22, 1.2, 0.36, 1),
-                transform 0.9s cubic-bezier(0.22, 1.2, 0.36, 1),
-                filter 0.9s ease;
+                opacity 1.8s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1.8s cubic-bezier(0.25, 1, 0.5, 1),
+                filter 1.8s ease-out;
             transition-delay: var(--pr-delay, 0s);
             will-change: opacity, transform;
         }
@@ -238,15 +288,6 @@
             opacity: 1;
             transform: scale(1) rotate(0deg);
             filter: blur(0) saturate(1);
-        }
-        /* Alternating pop styles so the reveal feels playful */
-        .polaroid-photo.reveal-left.revealed  { animation: polaroidWobble 0.7s ease 0.55s 1; }
-        .polaroid-photo.reveal-right.revealed { animation: polaroidWobble 0.7s ease 0.55s 1; }
-        @keyframes polaroidWobble {
-            0% { transform: scale(1) rotate(0deg); }
-            30% { transform: scale(1.06) rotate(2deg); }
-            60% { transform: scale(0.98) rotate(-1.5deg); }
-            100% { transform: scale(1) rotate(0deg); }
         }
         /* Respect users who prefer reduced motion */
         @media (prefers-reduced-motion: reduce) {
@@ -256,6 +297,72 @@
                 filter: none;
                 transition: none;
             }
+        }
+
+        /* Signature ("With all my love & best wishes") — stays hidden until
+           the whole message has finished typing, then fades in very slowly */
+        .gift-signature {
+            opacity: 0;
+            transform: translateY(20px);
+            filter: blur(3px);
+            transition: opacity 2.5s ease-out, transform 2.5s ease-out, filter 2.5s ease-out;
+        }
+        .gift-signature.reveal-done {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
+
+        /* ============ CAKE CUTTING ANIMATION ============ */
+        #cake-graphic { position: relative; }
+        /* The two cut halves are clones stacked exactly over the original cake */
+        .cake-half {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            visibility: hidden;
+        }
+        .cake-half.left  { clip-path: inset(0 50% 0 0); }
+        .cake-half.right { clip-path: inset(0 0 0 50%); }
+        .cake-cutting .cake-half { visibility: visible; }
+        .cake-cutting #cake-graphic > *:not(.cake-half):not(#knife-anim) { visibility: hidden; }
+        /* After the cut: left half drifts back gently, right half glides out as the slice */
+        .cake-half.left.cut-apart {
+            transition: transform 2.2s cubic-bezier(0.25, 1, 0.5, 1);
+            transform: translate(-50%, -50%) translateX(-22px) rotate(-1.5deg);
+        }
+        .cake-half.right.cut-apart {
+            transition: transform 2.6s cubic-bezier(0.22, 1, 0.5, 1), opacity 2.6s ease-out;
+            transform: translate(-50%, -50%) translateX(170px) translateY(30px) rotate(8deg);
+            opacity: 0.9;
+        }
+        /* Knife that slowly presses down along the cut line — natural motion:
+           eases in, pauses at contact, then lifts away. */
+        #knife-anim {
+            position: absolute;
+            top: -44px;
+            left: 50%;
+            margin-left: -18px;
+            font-size: 2.6rem;
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0;
+            transform-origin: top center;
+        }
+        #knife-anim.chopping {
+            animation: knifeChop 2.4s cubic-bezier(0.33, 0.02, 0.35, 1) forwards;
+        }
+        @keyframes knifeChop {
+            0%   { opacity: 0; transform: translateY(-70px) rotate(-52deg); }
+            18%  { opacity: 1; transform: translateY(-10px) rotate(-48deg); }
+            34%  { transform: translateY(20px) rotate(-45deg); }
+            44%  { transform: translateY(44px) rotate(-42deg); }  /* blade meets cake */
+            56%  { transform: translateY(50px) rotate(-41deg); }  /* slow press through */
+            66%  { transform: translateY(52px) rotate(-41deg); }  /* brief hold at the cut */
+            82%  { opacity: 1; transform: translateY(30px) rotate(-44deg); }
+            100% { opacity: 0; transform: translateY(-60px) rotate(-52deg); } /* lifts away */
         }
 
         /* ============ GIFT BOX OPEN ANIMATION ============ */
@@ -277,8 +384,8 @@
     <!-- Fullscreen Confetti Canvas -->
     <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50 w-full h-full"></canvas>
 
-    <!-- Floating Heart Balloons Container -->
-    <div id="balloon-container" class="fixed inset-0 pointer-events-none overflow-hidden z-0"></div>
+    <!-- Floating Heart Balloons Container (raised above content so balloons stay tappable) -->
+    <div id="balloon-container" class="fixed inset-0 pointer-events-none overflow-hidden z-[15]"></div>
 
     <!-- Background Music & Mic Controls Header -->
     <header class="w-full p-4 md:p-6 flex justify-between items-center z-20 max-w-6xl mx-auto">
@@ -317,7 +424,9 @@
         <p id="hero-text" class="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 font-light">
             Happy Birthday to my favorite women to roll my eye at! May your day be packed with endless laughter, terrible dance moves,and just enough wild surprises to keep things interesting!
         </p>
-        <p id="hero-text" class="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 font-light">हजारों दुआएं हैं मेरी इस दिल से, तुम्हें दुनिया की हर वो खुशी मिले जिसके तुम हकदार हो। मेरी हर सुबह की शुरुआत तुम्हारे ख्याल से और हर रात का अंत तुम्हारे सपनों से हो—यही दुआ है मेरी। जन्मदिन की बहुत-बहुत शुभकामनाएं!</p>
+        <p id="hero-text-hindi" class="text-lg md:text-xl text-slate-700 max-w-2xl mx-auto mb-10 font-light">
+            हजारों दुआएं हैं मेरी इस दिल से, तुम्हें दुनिया की हर वो खुशी मिले जिसके तुम हकदार हो। मेरी हर सुबह की शुरुआत तुम्हारे ख्याल से और हर रात का अंत तुम्हारे सपनों से हो—यही दुआ है मेरी। जन्मदिन की बहुत-बहुत शुभकामनाएं!
+        </p>
 
         <!-- Interactive Cake Section -->
         <section id="cake-section" class="w-full max-w-3xl glass-card rounded-3xl p-8 md:p-12 shadow-xl mb-16 relative overflow-hidden">
@@ -328,7 +437,7 @@
             <p class="text-slate-600 mb-8 text-sm md:text-base">Click the button below or blow into your microphone to put out the flames.</p>
 
             <!-- CSS Birthday Cake Graphic -->
-            <div class="flex flex-col items-center justify-center mb-8 relative">
+            <div id="cake-graphic" class="flex flex-col items-center justify-center mb-8 relative">
                 <!-- Candles Container -->
                 <div class="flex gap-4 md:gap-6 mb-1 z-10">
                     <!-- Candle 1 -->
@@ -380,16 +489,20 @@
                 <div class="w-88 md:w-96 h-4 bg-slate-200 rounded-full shadow-lg border border-slate-300 -mt-1"></div>
             </div>
 
-            <!-- Blow Candles Action Button -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button id="blow-btn" class="px-8 py-3.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-pink-500/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
-                    <i class="fa-solid fa-wind text-lg"></i> Blow Out All Candles!
-                </button>
-                <button id="relight-btn" class="px-6 py-3.5 bg-white/80 text-slate-700 border border-slate-200 font-semibold rounded-full hover:bg-white transition-all shadow-sm">
-                    <i class="fa-solid fa-rotate-right mr-2"></i> Relight Candles
+            <!-- Restore All (relights candles & rebuilds the cake) -->
+            <div class="flex items-center justify-center gap-4">
+                <button id="restore-btn" class="px-6 py-3.5 bg-white/80 text-slate-700 border border-slate-200 font-semibold rounded-full hover:bg-white transition-all shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Restore All
                 </button>
             </div>
             <p id="wish-status" class="mt-4 text-pink-600 font-medium text-sm h-6"></p>
+
+            <!-- Cake Cutting (appears after candles are blown out) -->
+            <div id="cake-cut-section" class="hidden mt-6">
+                <button id="cut-btn" class="px-8 py-3.5 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold rounded-full shadow-lg hover:shadow-rose-500/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
+                    <i class="fa-solid fa-utensils text-lg"></i> Cut the Cake! 🔪
+                </button>
+            </div>
         </section>
 
         <!-- Memory Gallery Section -->
@@ -475,7 +588,7 @@
                         </div>
                     </div>
                     <p id="typewriter-text" class="text-slate-700 leading-relaxed text-base font-normal"></p>
-                    <div class="mt-6 text-right">
+                    <div id="gift-signature" class="gift-signature mt-6 text-right">
                         <span class="font-pacifico text-pink-600 text-xl">With all my love & best wishes! 🌟</span><br>
                         <span class="font-pacifico text-pink-600 text-xl">Again Happy Birthday! Love 🎈</span>
                     </div>
@@ -523,6 +636,103 @@
         }
         spawnHeartBalloon();
 
+        // --- 1c. Lots of classic balloons streaming up from page load ---
+        const balloonColors = ['#f9a8d4', '#c4b5fd', '#a5b4fc', '#fda4af', '#fcd34d', '#5eead4', '#f0abfc', '#fca5a5'];
+
+        function spawnBalloon() {
+            const b = document.createElement('div');
+            b.className = 'balloon';
+            b.style.background = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+            // Smaller balloons on mobile so they don't crowd the small screen
+            const isMobile = window.innerWidth <= 640;
+            const size = isMobile
+                ? Math.floor(Math.random() * 18) + 24   // 24–42px wide on phones
+                : Math.floor(Math.random() * 36) + 38;  // 38–74px wide on desktop
+            b.style.width = `${size}px`;
+            b.style.height = `${Math.round(size * 1.25)}px`;
+            b.style.left = `${Math.random() * 94}%`;
+            const dur = Math.random() * 6 + 10;                        // 10–16s
+            b.style.setProperty('--b-dur', `${dur}s`);
+            balloonContainer.appendChild(b);
+            setTimeout(() => b.remove(), (dur + 0.5) * 1000);
+        }
+
+        // Burst of balloons right at page load (staggered), then a steady stream
+        for (let i = 0; i < 14; i++) {
+            setTimeout(spawnBalloon, i * 260);
+        }
+        setInterval(spawnBalloon, 700);
+
+        // --- 1d. Balloon pop: click a balloon → it breaks into small pieces with sound ---
+        function playPopSound() {
+            initAudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const t = audioCtx.currentTime;
+
+            // Crack of the rubber: sharp noise burst
+            const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.08, audioCtx.sampleRate);
+            const d = buf.getChannelData(0);
+            for (let n = 0; n < d.length; n++) d[n] = (Math.random() * 2 - 1);
+            const burst = audioCtx.createBufferSource();
+            const burstGain = audioCtx.createGain();
+            burst.buffer = buf;
+            burstGain.gain.setValueAtTime(0.28, t);
+            burstGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+            burst.connect(burstGain); burstGain.connect(audioCtx.destination);
+            burst.start(t);
+
+            // Rubber snap: squeaky pitch drop
+            const snap = audioCtx.createOscillator();
+            const snapGain = audioCtx.createGain();
+            snap.type = 'square';
+            snap.frequency.setValueAtTime(650 + Math.random() * 400, t);
+            snap.frequency.exponentialRampToValueAtTime(80, t + 0.1);
+            snapGain.gain.setValueAtTime(0.0001, t);
+            snapGain.gain.exponentialRampToValueAtTime(0.14, t + 0.006);
+            snapGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+            snap.connect(snapGain); snapGain.connect(audioCtx.destination);
+            snap.start(t); snap.stop(t + 0.13);
+        }
+
+        function popBalloon(el) {
+            if (!el || el.dataset.popped) return;
+            el.dataset.popped = '1';
+
+            // Where is the balloon right now?
+            const rect = el.getBoundingClientRect();
+            const x = (rect.left + rect.width / 2) / window.innerWidth;
+            const y = (rect.top + rect.height / 2) / window.innerHeight;
+            const color = getComputedStyle(el).backgroundColor || '#f9a8d4';
+
+            // Squash, then burst into lots of tiny fragments in the balloon's color
+            el.classList.add('popping');
+            playPopSound();
+
+            setTimeout(() => {
+                confetti({
+                    particleCount: 40,          // many small pieces
+                    spread: 75,
+                    startVelocity: 30,
+                    gravity: 0.9,
+                    scalar: 0.55,               // small fragments
+                    ticks: 140,
+                    origin: { x, y },
+                    colors: [color, '#ffffff']
+                });
+                el.remove();
+            }, 90);
+        }
+
+        // Wire up popping on both balloon types as they spawn
+        const balloonPopObserver = new MutationObserver(() => {
+            document.querySelectorAll('.balloon:not([data-pop-wired]), .heart-balloon:not([data-pop-wired])').forEach(el => {
+                el.dataset.popWired = '1';
+                el.addEventListener('click', () => popBalloon(el));
+                el.addEventListener('touchstart', (e) => { e.stopPropagation(); popBalloon(el); }, { passive: true });
+            });
+        });
+        balloonPopObserver.observe(balloonContainer, { childList: true });
+
         // --- 2. Scroll-Interactive Hero Text ---
         // Split heading & paragraph into words that light up while scrolling
         function splitIntoWords(el) {
@@ -533,8 +743,13 @@
 
         const heroTitle = document.getElementById('hero-title');
         const heroText = document.getElementById('hero-text');
+        const heroTextHindi = document.getElementById('hero-text-hindi');
 
-        const heroWordEls = [...heroTitle.querySelectorAll('.hero-part'), ...splitIntoWords(heroText)];
+        const heroWordEls = [
+            ...heroTitle.querySelectorAll('.hero-part'),
+            ...splitIntoWords(heroText),
+            ...splitIntoWords(heroTextHindi)
+        ];
         heroWordEls.forEach((el, i) => el.style.setProperty('--rw-delay', `${i * 0.06}s`));
 
         // Progress 0→1 based on scroll; hero parts & words light up progressively.
@@ -657,6 +872,7 @@
             musicInterval = setTimeout(playNextNote, current.dur);
         }
 
+        // NOTE: toggleBackgroundMusic also auto-starts the tune after candles are blown out
         function toggleBackgroundMusic() {
             const btnText = document.getElementById('music-text');
             const icon = document.getElementById('music-icon');
@@ -697,14 +913,172 @@
             playChime();
             triggerMassiveConfetti();
             document.getElementById('wish-status').innerText = "🎉 Yay! Your wish has been locked in! Happy Birthday!";
+            showCakeCutButton();
         }
 
         function checkAllCandles() {
             if (candlesExtinguished >= 3) {
                 triggerMassiveConfetti();
                 document.getElementById('wish-status').innerText = "🎉 All candles blown out! Make a wonderful wish!";
+                showCakeCutButton();
             }
         }
+
+        function showCakeCutButton() {
+            document.getElementById('cake-cut-section').classList.remove('hidden');
+        }
+
+        // --- 4b. Cake Cutting Animation ---
+        function setupCakeCutting() {
+            const graphic = document.getElementById('cake-graphic');
+            const knife = document.createElement('div');
+            knife.id = 'knife-anim';
+            knife.innerText = '🔪';
+            graphic.appendChild(knife);
+
+            document.getElementById('cut-btn').addEventListener('click', () => {
+                if (graphic.classList.contains('cake-cutting')) return;
+                graphic.classList.add('cake-cutting');
+
+                // Two clones: left half stays, right half becomes the slice
+                ['left', 'right'].forEach(side => {
+                    const clone = graphic.cloneNode(true);
+                    clone.removeAttribute('id');
+                    clone.classList.remove('flex', 'flex-col', 'items-center', 'justify-center', 'mb-8', 'relative');
+                    clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+                    clone.className = `cake-half ${side} ${clone.className}`;
+                    graphic.appendChild(clone);
+                });
+
+                // Knife slowly presses down through the middle (natural motion)
+                const knife = document.getElementById('knife-anim');
+                knife.classList.remove('chopping');
+                void knife.offsetWidth; // restart animation cleanly
+                knife.classList.add('chopping');
+
+                // Slice sound: quick swish + soft impact
+                playCutSound();
+
+                // As the blade passes the middle, the halves glide apart
+                setTimeout(() => {
+                    document.querySelectorAll('.cake-half.left').forEach(el => el.classList.add('cut-apart'));
+                    document.querySelectorAll('.cake-half.right').forEach(el => el.classList.add('cut-apart'));
+                    triggerMassiveConfetti();
+                }, 1200);
+
+                // 🎉 Celebration: claps + balloon pops for ~3s, then the birthday tune
+                setTimeout(() => {
+                    playCelebrationSounds();
+                }, 1300);
+            });
+        }
+
+        // Clapping + balloon-popping burst for ~3 seconds, then auto-start the music
+        function playCelebrationSounds() {
+            initAudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const base = audioCtx.currentTime;
+
+            // --- Claps: soft noise bursts, like an audience applauding ---
+            const clapBuf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.12, audioCtx.sampleRate);
+            const cd = clapBuf.getChannelData(0);
+            for (let n = 0; n < cd.length; n++) cd[n] = (Math.random() * 2 - 1) * (1 - n / cd.length);
+            for (let c = 0; c < 14; c++) {
+                const ct = base + 0.1 + c * 0.22 + Math.random() * 0.08;
+                const clap = audioCtx.createBufferSource();
+                const clapGain = audioCtx.createGain();
+                const clapFilter = audioCtx.createBiquadFilter();
+                clap.buffer = clapBuf;
+                clapFilter.type = 'bandpass';
+                clapFilter.frequency.value = 1400 + Math.random() * 800;
+                clapFilter.Q.value = 0.8;
+                clapGain.gain.setValueAtTime(0.0001, ct);
+                clapGain.gain.exponentialRampToValueAtTime(0.18 + Math.random() * 0.06, ct + 0.01);
+                clapGain.gain.exponentialRampToValueAtTime(0.0001, ct + 0.11);
+                clap.connect(clapFilter); clapFilter.connect(clapGain); clapGain.connect(audioCtx.destination);
+                clap.start(ct);
+            }
+
+            // --- Balloon pops: tiny pop with squeaky pitch drop ---
+            for (let p = 0; p < 7; p++) {
+                const pt = base + 0.15 + p * 0.4 + Math.random() * 0.2;
+                const popOsc = audioCtx.createOscillator();
+                const popGain = audioCtx.createGain();
+                popOsc.type = 'square';
+                popOsc.frequency.setValueAtTime(700 + Math.random() * 500, pt);
+                popOsc.frequency.exponentialRampToValueAtTime(90, pt + 0.08);
+                popGain.gain.setValueAtTime(0.0001, pt);
+                popGain.gain.exponentialRampToValueAtTime(0.16, pt + 0.005);
+                popGain.gain.exponentialRampToValueAtTime(0.0001, pt + 0.1);
+                popOsc.connect(popGain); popGain.connect(audioCtx.destination);
+                popOsc.start(pt); popOsc.stop(pt + 0.12);
+            }
+
+            // --- After ~3s of celebration, start the Happy Birthday tune ---
+            setTimeout(() => {
+                if (!isPlayingMusic) {
+                    toggleBackgroundMusic();
+                }
+            }, 3200);
+        }
+
+        // Restore everything: relight candles + rebuild the cake for another round
+        function restoreAll() {
+            // Relight candles
+            candlesExtinguished = 0;
+            for (let i = 1; i <= 3; i++) {
+                const flame = document.getElementById(`flame-${i}`);
+                if (flame) flame.style.display = 'block';
+            }
+            document.getElementById('wish-status').innerText = "";
+
+            // Rebuild cake
+            const graphic = document.getElementById('cake-graphic');
+            graphic.classList.remove('cake-cutting');
+            document.querySelectorAll('.cake-half').forEach(el => el.remove());
+            const knife = document.getElementById('knife-anim');
+            if (knife) knife.classList.remove('chopping');
+
+            // Hide the cut button again until candles are blown out next time
+            document.getElementById('cake-cut-section').classList.add('hidden');
+        }
+
+        function playCutSound() {
+            initAudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const t = audioCtx.currentTime;
+
+            // Swish (filtered noise sweep)
+            const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.3, audioCtx.sampleRate);
+            const d = buf.getChannelData(0);
+            for (let n = 0; n < d.length; n++) d[n] = Math.random() * 2 - 1;
+            const swish = audioCtx.createBufferSource();
+            const swishGain = audioCtx.createGain();
+            const swishFilter = audioCtx.createBiquadFilter();
+            swish.buffer = buf;
+            swishFilter.type = 'bandpass';
+            swishFilter.frequency.setValueAtTime(400, t);
+            swishFilter.frequency.exponentialRampToValueAtTime(3000, t + 0.25);
+            swishFilter.Q.value = 2;
+            swishGain.gain.setValueAtTime(0.0001, t);
+            swishGain.gain.exponentialRampToValueAtTime(0.2, t + 0.08);
+            swishGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+            swish.connect(swishFilter); swishFilter.connect(swishGain); swishGain.connect(audioCtx.destination);
+            swish.start(t);
+
+            // Impact thunk
+            const thunk = audioCtx.createOscillator();
+            const thunkGain = audioCtx.createGain();
+            thunk.type = 'sine';
+            thunk.frequency.setValueAtTime(120, t + 0.28);
+            thunk.frequency.exponentialRampToValueAtTime(55, t + 0.45);
+            thunkGain.gain.setValueAtTime(0.0001, t + 0.28);
+            thunkGain.gain.exponentialRampToValueAtTime(0.22, t + 0.3);
+            thunkGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+            thunk.connect(thunkGain); thunkGain.connect(audioCtx.destination);
+            thunk.start(t + 0.28); thunk.stop(t + 0.5);
+        }
+        setupCakeCutting();
 
         function resetCandles() {
             for (let i = 1; i <= 3; i++) {
@@ -717,8 +1091,7 @@
         [1, 2, 3].forEach(n => {
             document.getElementById(`flame-${n}`).addEventListener('click', () => extinguishSingleCandle(n));
         });
-        document.getElementById('blow-btn').addEventListener('click', extinguishAllCandles);
-        document.getElementById('relight-btn').addEventListener('click', resetCandles);
+        document.getElementById('restore-btn').addEventListener('click', restoreAll);
 
         function triggerMassiveConfetti() {
             confetti({
@@ -816,7 +1189,7 @@
 
         // --- 5. Gift Box & Typewriter Effect ---
         let giftOpened = false;
-        const secretMessage = "Happy Birthday! ✨ Wishing you endless joy, sound health, and the kind of peace that makes your soul feel light.I want you to know that my care for you isn't bound by how things used to be or how they are today. It’s simple, deep, and completely free of any weight or pressure. You never have to worry about expectations from my side—my love for you is purely about wanting your happiness, even from a quiet distance. Thank you for being such a meaningful part of my journey. May this year open doors to beautiful new beginnings and fulfill every wish you carry in your heart. Have a wonderful day!";
+        const secretMessage = "Happy Birthday! ✨ Wishing you endless joy, sound health, and the kind of peace that makes your soul feel light. I want you to know that my care for you isn't bound by how things used to be or how they are today. It's simple, deep, and completely free of any weight or pressure. You never have to worry about expectations from my side—my love for you is purely about wanting your happiness, even from a quiet distance. Thank you for being such a meaningful part of my journey. May this year open doors to beautiful new beginnings and fulfill every wish you carry in your heart. Have a wonderful day!";
 
         function openGiftBox() {
             if (giftOpened) return;
@@ -839,13 +1212,20 @@
                 let i = 0;
                 const speed = 35;
                 const textTarget = document.getElementById('typewriter-text');
+                const signature = document.getElementById('gift-signature');
                 textTarget.innerText = "";
+                signature.classList.remove('reveal-done');
 
                 function typeWriter() {
                     if (i < secretMessage.length) {
                         textTarget.innerHTML += secretMessage.charAt(i);
                         i++;
                         setTimeout(typeWriter, speed);
+                    } else {
+                        // Message fully printed — now reveal the signature with a slow fade
+                        setTimeout(() => {
+                            signature.classList.add('reveal-done');
+                        }, 400);
                     }
                 }
                 typeWriter();
